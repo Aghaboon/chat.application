@@ -4,11 +4,12 @@ import threading
 from tkinter import *
 
 # Server configuration
-
 # socket.AF_INET, this case to use IPv4
-# socket.SOCK_STREAM, this case to use TCP socket
+# socket.SOCK_STREAM, this to use TCP socket
+# socket.SOCK_DGRAM, this to use UDP socket
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-host = "127.17.18.1"
+
+host = "192.168.56.1"
 port = 14217
 
 # method connects the socket to the specified host and port.
@@ -17,9 +18,9 @@ server.bind((host, port))
 # method configures the server to accept up to 5 connections that are queued and listen for incoming connections.
 server.listen(5)
 
-# Create empty lists to hold client sockets and nicknames
+# Create empty lists to hold client sockets and usernames
 clients = []
-nicknames = []
+usernames = []
 
 # Function to broadcast message to all connected clients
 def broadcast(message):
@@ -40,9 +41,9 @@ def handle(client):
             clients.remove(client)
             # Close client connection
             client.close()
-            nickname = nicknames[index]
-            nicknames.remove(nickname)
-            broadcast(f"{nickname} left the chat!".encode("utf-8"))
+            username = usernames[index]
+            usernames.remove(username)
+            broadcast(f"{username} left the chat!".encode("utf-8"))
             break
 
 # Function to accept new client connections and start a new thread to handle each connection
@@ -52,20 +53,39 @@ def receive():
         client, addr = server.accept()
         print(f"Connected with {str(addr)}")
 
-        # Ask client to send their nickname and add to lists of clients and nicknames
+        # Ask client to send their username and add to lists of clients and usernames
         client.send("NICK".encode("utf-8"))
-        nickname = client.recv(1024).decode("utf-8")
-        nicknames.append(nickname)
+        username = client.recv(1024).decode("utf-8")
+        usernames.append(username)
         clients.append(client)
 
         # Broadcast to all clients that a new client has joined the chat
-        print(f"Nickname of the client is {nickname}!")
-        broadcast(f"{nickname} joined the chat!".encode("utf-8"))
+        print(f"Username of the client is {username}!")
+        broadcast(f"{username} joined the chat!".encode("utf-8"))
         client.send("Connected to the server!".encode("utf-8"))
 
         # Start a new thread to handle the client's connection
         thread = threading.Thread(target=handle, args=(client,))
         thread.start()
 
+
 # Start the server and accept new connections
 receive()
+
+# -----------------------------------------------------------------
+# for UDP
+# def receive():
+#     while True:
+#         # Wait for a message from a client
+#         message, client_address = server.recvfrom(1024)
+#         username = message.decode("utf-8")
+#
+#         # Add the client to the list of clients and usernames
+#         if client_address not in clients:
+#             clients.append(client_address)
+#             usernames.append(username)
+#             print(f"Username of the client is {username}!")
+#             broadcast(f"{username} joined the chat!".encode("utf-8"))
+#
+#         # Broadcast the message to all clients
+#         broadcast(message)
