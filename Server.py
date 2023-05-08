@@ -54,7 +54,7 @@ def receive():
         print(f"Connected with {str(addr)}")
 
         # Ask client to send their username and add to lists of clients and usernames
-        client.send("NICK".encode("utf-8"))
+        client.send("USER".encode("utf-8"))
         username = client.recv(1024).decode("utf-8")
         usernames.append(username)
         clients.append(client)
@@ -62,7 +62,7 @@ def receive():
         # Broadcast to all clients that a new client has joined the chat
         print(f"Username of the client is {username}!")
         broadcast(f"{username} joined the chat!".encode("utf-8"))
-        client.send("Connected to the server!".encode("utf-8"))
+        # client.send("Connected to the server!".encode("utf-8"))
 
         # Start a new thread to handle the client's connection
         thread = threading.Thread(target=handle, args=(client,))

@@ -75,7 +75,7 @@ def start_chat():
     receive_thread.start()
 
     # Send username to server
-    client.send(username.encode("utf-8"))
+    # client.send(username.encode("utf-8"))
 
     root.mainloop()
 
@@ -85,7 +85,7 @@ def receive():
     while True:
         try:
             message = client.recv(1024).decode("utf-8")
-            if message == "NICK":
+            if message == "USER":
                 client.send(username.encode("utf-8"))
             else:
                 text_area.config(state=NORMAL)
